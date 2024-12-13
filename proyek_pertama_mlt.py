@@ -24,12 +24,12 @@ files.upload()
 !chmod 600 /root/.kaggle/kaggle.json
 
 # Mengunduh dataset dari Kaggle menggunakan Kaggle API
-!kaggle datasets download -d rahmasleam/flowers-dataset/
+!kaggle datasets download -d thedevastator/weather-prediction
 
 from zipfile import ZipFile
 
 # Mengekstrak file zip
-file_name = "flowers-dataset.zip"
+file_name = "/content/weather-prediction.zip"
 with ZipFile(file_name,'r') as zip:
   zip.extractall()
   print('Extraction Completed')
@@ -37,35 +37,24 @@ with ZipFile(file_name,'r') as zip:
 """## **Import Library**"""
 
 # Import Library
-import os
 import numpy as np
 import pandas as pd
-import cv2
-import matplotlib.pyplot as plt
-import seaborn as sns
 import tensorflow as tf
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, GlobalAveragePooling2D
-from tensorflow.keras.applications import MobileNetV2
-from sklearn.metrics import classification_report, confusion_matrix
+from tensorflow.keras.layers import Dense, LSTM, Dropout
 
 """## **Eksplorasi Awal Dataset**"""
 
 # Path dataset
-dataset_dir = "/content/flower_photos"
-classes = ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
+dataset = "weather_prediction_dataset.csv"
+df = pd.read_csv(dataset)
 
-# Analisis distribusi data
-data_info = []
-for flower in classes:
-    folder_path = os.path.join(dataset_dir, flower)
-    file_list = os.listdir(folder_path)
-    data_info.extend([(flower, file) for file in file_list])
-
-# Konversi data menjadi DataFrame
-df = pd.DataFrame(data_info, columns=['class', 'filename'])
+print("Dataset Shape:", data.shape)
 
 # Tampilkan beberapa baris awal
 print("Preview dataset:")
@@ -75,10 +64,6 @@ print(df.head())
 print("\nInformasi dataset:")
 print(df.info())
 
-# Deskripsi statistik dataset
-print("\nDeskripsi statistik dataset:")
-print(df.describe())
-
 """#### **Memeriksa Data yang Hilang**"""
 
 # Cek missing values
@@ -86,206 +71,86 @@ missing_values = df.isnull().sum()
 print("\nNilai hilang di setiap kolom:")
 print(missing_values)
 
-"""#### **Visualisasi Distribusi Label**"""
-
-# Analisis distribusi label
-data_count = df['class'].value_counts()
-
-# Visualisasi distribusi label
-plt.figure(figsize=(8, 5))
-sns.barplot(x=data_count.index, y=data_count.values, palette='Set3')
-plt.title('Distribusi Data pada Setiap Kelas')
-plt.xlabel('Kelas')
-plt.ylabel('Jumlah Gambar')
-plt.xticks(rotation=30)
-plt.show()
-
-"""#### **Visualisasi Contoh Gambar dari Setiap Kelas**"""
-
-# Visualisasi contoh gambar dari setiap kelas
-plt.figure(figsize=(15, 10))
-for i, flower in enumerate(classes):
-    folder_path = os.path.join(dataset_dir, flower)
-    sample_image = os.path.join(folder_path, os.listdir(folder_path)[0])
-    image = cv2.imread(sample_image)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    plt.subplot(2, 3, i + 1)
-    plt.imshow(image)
-    plt.title(flower)
-    plt.axis('off')
-plt.tight_layout()
-plt.show()
-
 """## **Data Preparation**
 
 #### **Data Preprocessing dan Augmentasi**
 """
 
-# Konfigurasi preprocessing
-img_size = (128, 128)
-batch_size = 32
-dataset_dir = "/content/flower_photos"
+# Data Transformation
+scaler = MinMaxScaler()
+data_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
 
-# Data preprocessing & augmentasi
-datagen = ImageDataGenerator(
-    rescale=1.0 / 255,
-    validation_split=0.2,
-    rotation_range=20,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True,
-    fill_mode="nearest"
-)
+# Assuming 'TG' (mean temperature) as the target variable
+X = data_scaled.drop(columns=['BASEL_temp_mean'])
+y = data_scaled['BASEL_temp_mean']
 
-# Generator untuk data training
-train_generator = datagen.flow_from_directory(
-    dataset_dir,
-    target_size=img_size,
-    batch_size=batch_size,
-    class_mode='categorical',
-    subset='training',
-    shuffle=True
-)
-
-# Generator untuk data validasi
-val_generator = datagen.flow_from_directory(
-    dataset_dir,
-    target_size=img_size,
-    batch_size=batch_size,
-    class_mode='categorical',
-    subset='validation',
-    shuffle=False
-)
-
-"""#### **Visualisasi Hasil Augmentasi Data**"""
-
-# Mengecek contoh hasil augmentasi
-import matplotlib.pyplot as plt
-
-def plot_augmented_images(generator, num_images=5):
-    x_batch, y_batch = next(generator)
-    plt.figure(figsize=(15, 5))
-    for i in range(num_images):
-        plt.subplot(1, num_images, i + 1)
-        plt.imshow(x_batch[i])
-        plt.axis('off')
-    plt.suptitle("Contoh Gambar Setelah Augmentasi")
-    plt.show()
-
-# Visualisasi hasil augmentasi data training
-plot_augmented_images(train_generator)
+# Splitting into Train, Validation, and Test Sets
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
 """## **Modeling**
 
-#### **Model Baseline:**
+#### **Random Forest Regressor:**
 """
 
-baseline_model = Sequential([
-    Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3)),
-    MaxPooling2D((2, 2)),
-    Conv2D(64, (3, 3), activation='relu'),
-    MaxPooling2D((2, 2)),
-    Flatten(),
-    Dense(128, activation='relu'),
-    Dropout(0.5),
-    Dense(5, activation='softmax')
+# Random Forest Regressor
+rf_model = RandomForestRegressor(random_state=42)
+rf_model.fit(X_train, y_train)
+rf_preds = rf_model.predict(X_test)
+
+"""#### **Gradient Boosting Regressor:**"""
+
+# Gradient Boosting Regressor
+gb_model = GradientBoostingRegressor(random_state=42)
+gb_model.fit(X_train, y_train)
+gb_preds = gb_model.predict(X_test)
+
+"""#### **Recurrent Neural Network (RNN):**"""
+
+# RNN
+rnn_model = Sequential([
+    LSTM(50, activation='relu', input_shape=(X_train.shape[1], 1), return_sequences=True),
+    Dropout(0.2),
+    LSTM(50, activation='relu'),
+    Dropout(0.2),
+    Dense(1)
 ])
+rnn_model.compile(optimizer='adam', loss='mse')
 
-baseline_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-baseline_model.summary()
+# Reshape data for RNN
+X_train_rnn = np.expand_dims(X_train.values, axis=2)
+X_val_rnn = np.expand_dims(X_val.values, axis=2)
+X_test_rnn = np.expand_dims(X_test.values, axis=2)
 
-# Training
-history_baseline = baseline_model.fit(
-    train_generator,
-    validation_data=val_generator,
-    epochs=10
-)
+# Training the RNN
+rnn_model.fit(X_train_rnn, y_train, validation_data=(X_val_rnn, y_val), epochs=50, batch_size=32)
+rnn_preds = rnn_model.predict(X_test_rnn)
 
-"""#### **Model Improvement (Transfer Learning):**"""
+"""## **Evaluation**"""
 
-base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(128, 128, 3))
-base_model.trainable = False
+# Evaluation function
+def evaluate_model(name, y_true, y_pred):
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
+    print(f"{name} Evaluation:\nMAE: {mae}\nMSE: {mse}\nR^2: {r2}\n")
 
-transfer_model = Sequential([
-    base_model,
-    GlobalAveragePooling2D(),
-    Dense(128, activation='relu'),
-    Dropout(0.5),
-    Dense(5, activation='softmax')
-])
+# Evaluate the models
+evaluate_model("Random Forest", y_test, rf_preds)
+evaluate_model("Gradient Boosting", y_test, gb_preds)
+evaluate_model("RNN", y_test, rnn_preds)
 
-transfer_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-transfer_model.summary()
+"""## **Testing**"""
 
-# Training
-history_transfer = transfer_model.fit(
-    train_generator,
-    validation_data=val_generator,
-    epochs=10
-)
+# Testing phase (testing the models with unseen data)
+print("Testing Random Forest Model:")
+rf_test_preds = rf_model.predict(X_test)
+evaluate_model("Random Forest Test", y_test, rf_test_preds)
 
-"""## **Evaluation**
+print("Testing Gradient Boosting Model:")
+gb_test_preds = gb_model.predict(X_test)
+evaluate_model("Gradient Boosting Test", y_test, gb_test_preds)
 
-#### **Baseline CNN Evaluation**
-"""
-
-# Evaluasi model baseline
-baseline_loss, baseline_accuracy = baseline_model.evaluate(val_generator)
-print(f"Baseline Model Accuracy: {baseline_accuracy * 100:.2f}%")
-
-# Prediksi data validasi
-val_generator.reset()
-baseline_predictions = baseline_model.predict(val_generator)
-baseline_predicted_classes = np.argmax(baseline_predictions, axis=1)
-
-# Label sebenarnya
-true_classes = val_generator.classes
-class_labels = list(val_generator.class_indices.keys())
-
-# Confusion Matrix
-conf_matrix = confusion_matrix(true_classes, baseline_predicted_classes)
-print("\nConfusion Matrix:")
-print(conf_matrix)
-
-# Classification Report
-print("\nClassification Report:")
-print(classification_report(true_classes, baseline_predicted_classes, target_names=class_labels))
-
-# Visualisasi Confusion Matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=class_labels, yticklabels=class_labels)
-plt.title("Confusion Matrix - Baseline Model")
-plt.xlabel("Predicted Class")
-plt.ylabel("True Class")
-plt.show()
-
-"""#### **Transfer Learning Evaluation**"""
-
-# Evaluasi model transfer learning
-transfer_loss, transfer_accuracy = transfer_model.evaluate(val_generator)
-print(f"Transfer Learning Model Accuracy: {transfer_accuracy * 100:.2f}%")
-
-# Prediksi data validasi
-val_generator.reset()
-transfer_predictions = transfer_model.predict(val_generator)
-transfer_predicted_classes = np.argmax(transfer_predictions, axis=1)
-
-# Confusion Matrix
-transfer_conf_matrix = confusion_matrix(true_classes, transfer_predicted_classes)
-print("\nConfusion Matrix - Transfer Learning:")
-print(transfer_conf_matrix)
-
-# Classification Report
-print("\nClassification Report - Transfer Learning:")
-print(classification_report(true_classes, transfer_predicted_classes, target_names=class_labels))
-
-# Visualisasi Confusion Matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(transfer_conf_matrix, annot=True, fmt="d", cmap="Blues", xticklabels=class_labels, yticklabels=class_labels)
-plt.title("Confusion Matrix - Transfer Learning Model")
-plt.xlabel("Predicted Class")
-plt.ylabel("True Class")
-plt.show()
+print("Testing RNN Model:")
+rnn_test_preds = rnn_model.predict(X_test_rnn)
+evaluate_model("RNN Test", y_test, rnn_test_preds)

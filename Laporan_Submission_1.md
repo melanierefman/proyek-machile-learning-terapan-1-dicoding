@@ -1,178 +1,130 @@
-# Laporan Proyek Machine Learning - Melanie Sayyidina Sabrina Refman
+## Laporan Proyek Machine Learning - Prediksi Cuaca
 
-## Domain Proyek
+### Domain Proyek
 
-**Latar Belakang**
+#### Latar Belakang
 
-Klasifikasi gambar bunga adalah salah satu tugas dalam bidang _computer vision_ yang berfokus pada pengelompokan gambar berdasarkan jenis bunga tertentu. Klasifikasi ini dapat digunakan dalam berbagai aplikasi praktis seperti identifikasi tanaman untuk keperluan pertanian, konservasi, atau bahkan dalam aplikasi mobile yang memudahkan masyarakat dalam mengenali bunga yang mereka temui. Dalam hal ini, dataset yang digunakan adalah **Flower Dataset** yang berisi gambar dari lima spesies bunga yang berbeda: Daisy, Dandelion, Roses, Sunflowers, dan Tulips.
+Prediksi cuaca adalah salah satu tantangan penting dalam ilmu data, dengan dampak yang signifikan pada kehidupan manusia. Kemampuan untuk memprediksi kondisi cuaca dengan akurasi tinggi membantu masyarakat mempersiapkan diri terhadap perubahan cuaca, mendukung sektor pertanian, dan meningkatkan keselamatan dalam berbagai aktivitas. Proyek ini menggunakan dataset _Weather Prediction Dataset_ yang berisi data dari European Climate Assessment & Dataset (ECA&D).
 
-**Mengapa masalah ini penting?**
+#### Sumber Dataset
 
-- **Efisiensi Identifikasi:** Teknologi ini memungkinkan identifikasi bunga dengan cepat, mengurangi ketergantungan pada ahli botani.
-- **Akurasi Tinggi:** Meminimalisir kesalahan identifikasi pada bunga dengan karakteristik serupa.
-- **Automasi:** Membuka potensi teknologi AI untuk membantu industri pertanian, konservasi, dan edukasi dalam mengenali dan melacak bunga secara otomatis.
+Dataset ini berasal dari proyek ECA&D yang menyediakan data observasi harian dari berbagai stasiun meteorologi di Eropa dan Mediterania, mencakup 18 lokasi di Eropa dengan rentang waktu dari tahun 2000 hingga 2010. Variabel yang tersedia antara lain suhu rata-rata, suhu maksimum, suhu minimum, kecepatan angin, curah hujan, dan lainnya. Dataset ini telah melalui proses pembersihan untuk menghapus data yang tidak valid (>5%) dan menggantikan nilai hilang (“-9999”) dengan nilai rata-rata.
 
-**Hasil Riset Terkait:**
+#### Mengapa Masalah Ini Penting?
 
-1. **J. Deng, W. Dong, R. Socher, L. -J. Li, Kai Li and Li Fei-Fei,** "ImageNet: A large-scale hierarchical image database," 2009 IEEE Conference on Computer Vision and Pattern Recognition, Miami, FL, USA, 2009, pp. 248-255, doi: 10.1109/CVPR.2009.5206848. [Link](https://ieeexplore.ieee.org/document/5206848)
-2. **K. He, X. Zhang, S. Ren and J. Sun,** "Deep Residual Learning for Image Recognition," 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Las Vegas, NV, USA, 2016, pp. 770-778, doi: 10.1109/CVPR.2016.90. [Link](https://ieeexplore.ieee.org/document/7780459)
+- **Keselamatan Publik**: Prediksi cuaca yang akurat dapat mengurangi risiko yang disebabkan oleh cuaca ekstrem.
+- **Efisiensi Operasional**: Mendukung perencanaan sektor logistik dan pertanian.
+- **Penghematan Biaya**: Mengurangi kerugian finansial akibat ketidaksiapan terhadap perubahan cuaca.
 
----
+#### Hasil Riset Terkait
 
-## Business Understanding
-
-### Problem Statements
-
-1. Bagaimana model machine learning dapat membedakan lima spesies bunga menggunakan dataset gambar yang tersedia?
-2. Algoritma machine learning mana yang akan memberikan hasil terbaik dalam klasifikasi gambar bunga berdasarkan akurasi dan kecepatan pelatihan?
-
-### Goals
-
-1. Membangun model machine learning yang dapat mengklasifikasikan lima spesies bunga dengan akurasi yang tinggi.
-2. Mengidentifikasi algoritma terbaik yang memberikan hasil optimal dalam hal akurasi dan waktu pelatihan.
-
-### Solution Statements
-
-1. Menggunakan model baseline Convolutional Neural Network (CNN) sebagai langkah awal untuk klasifikasi gambar bunga.
-2. Menerapkan teknik transfer learning dengan model pretrained seperti MobileNetV2 untuk meningkatkan akurasi klasifikasi.
-3. Melakukan hyperparameter tuning untuk meningkatkan performa model, seperti penyesuaian ukuran batch dan learning rate.
+1. Klein Tank, A.M.G. et al. (2002). "Daily dataset of 20th-century surface air temperature and precipitation series for the European Climate Assessment." _Int. J. of Climatol._, 22, 1441-1453.
+2. Rasp, S. et al. (2020). "WeatherBench: A benchmark dataset for data-driven weather forecasting." _Bulletin of the American Meteorological Society_.
 
 ---
 
-## Data Understanding
+### Business Understanding
 
-Dataset yang digunakan dalam proyek ini adalah **Flower Dataset**, yang terdiri dari gambar bunga dengan lima spesies: Daisy, Dandelion, Roses, Sunflowers, dan Tulips. Dataset ini dapat diunduh dari Kaggle: [Flower Dataset](https://www.kaggle.com/datasets/rahmasleam/flowers-dataset/data).
+#### Problem Statements
 
-### Variabel-variabel dalam Dataset:
+- Bagaimana model machine learning dapat memprediksi variabel cuaca tertentu berdasarkan data historis?
+- Algoritma machine learning mana yang memberikan hasil terbaik dalam hal akurasi dan kecepatan prediksi?
 
-- **Gambar**: Gambar bunga berukuran 128x128x3 dalam format PNG yang disimpan dalam subfolder berdasarkan spesies bunga.
-- **Label**: Setiap gambar memiliki label yang mewakili spesies bunga. Labelnya adalah:
-  - Daisy
-  - Dandelion
-  - Roses
-  - Sunflowers
-  - Tulips
+#### Goals
 
----
+- Membangun model machine learning untuk memprediksi kondisi cuaca dengan akurasi tinggi.
+- Mengidentifikasi algoritma terbaik berdasarkan kinerja prediksi cuaca.
 
-## Data Preparation
+#### Solution Statements
 
-### Tahapan Data Preparation:
-
-1. **Preprocessing**  
-   Tahap pertama dalam persiapan data adalah preprocessing, yang bertujuan untuk mempersiapkan gambar agar dapat diproses lebih efisien oleh model. Proses ini meliputi:
-
-   - **Resize gambar**: Semua gambar diubah ukurannya menjadi ukuran standar (128x128 piksel). Pengubahan ukuran ini bertujuan untuk menyamakan dimensi gambar sehingga model dapat memprosesnya dengan konsisten dan cepat. Ukuran ini dipilih agar seimbang antara kualitas gambar yang cukup tinggi dan kecepatan pelatihan model.
-   - **Normalisasi nilai piksel**: Nilai piksel gambar yang awalnya berada dalam rentang 0-255 diubah menjadi 0-1 dengan membagi semua nilai piksel dengan 255. Ini dilakukan untuk membantu mempercepat proses pelatihan karena model akan lebih mudah belajar dari data yang sudah distandarisasi.
-
-2. **Augmentasi Data**  
-   Untuk meningkatkan keberagaman data dan memperkaya dataset training, dilakukan teknik augmentasi data. Augmentasi data adalah strategi untuk menghasilkan variasi baru dari data yang ada tanpa memerlukan pengumpulan data baru. Beberapa teknik augmentasi yang digunakan adalah:
-
-   - **Rotasi gambar**: Gambar diputar dalam rentang sudut tertentu untuk mensimulasikan variasi orientasi objek yang mungkin terjadi dalam dunia nyata.
-   - **Pergeseran gambar (width shift & height shift)**: Gambar digeser secara acak dalam arah horizontal dan vertikal. Ini membantu model untuk mengenali objek meskipun posisinya berbeda dari data pelatihan yang sudah ada.
-   - **Zoom**: Teknik zoom digunakan untuk memperbesar atau memperkecil gambar, yang memungkinkan model untuk mempelajari objek dalam berbagai ukuran.
-   - **Flipping horizontal**: Gambar dibalik secara horizontal untuk mensimulasikan variasi dalam orientasi objek, seperti bunga yang tumbuh dalam posisi terbalik.
-
-   Teknik augmentasi ini sangat penting untuk meningkatkan kemampuan generalisasi model, mengurangi overfitting, dan memastikan model dapat mengenali objek dalam berbagai kondisi.
-
-3. **Pembagian Data**  
-   Dataset dibagi menjadi dua bagian utama: data untuk pelatihan dan data untuk validasi. Pembagian ini dilakukan menggunakan parameter `validation_split` pada `ImageDataGenerator`, yang membagi dataset menjadi:
-
-   - **80% untuk data pelatihan (training)**: Data ini digunakan untuk melatih model, memungkinkan model untuk mempelajari pola dan hubungan dalam dataset.
-   - **20% untuk data validasi (validation)**: Data validasi digunakan untuk mengevaluasi kinerja model selama proses pelatihan. Data validasi membantu memastikan bahwa model tidak mengalami overfitting dan mampu bekerja dengan baik pada data yang belum pernah dilihat sebelumnya.
-
-   Pembagian yang seimbang ini penting untuk memastikan model dapat belajar dengan baik sambil menghindari bias terhadap data yang sudah dilatih.
+- Menggunakan model regresi seperti Random Forest dan Gradient Boosting sebagai baseline.
+- Menerapkan teknik deep learning seperti Recurrent Neural Networks (RNN) untuk menangkap pola dalam data deret waktu.
+- Melakukan hyperparameter tuning untuk meningkatkan performa model, seperti penyesuaian jumlah pohon, learning rate, dan ukuran batch.
 
 ---
 
-## Modeling
+### Data Understanding
 
-### Model yang Digunakan
+#### Deskripsi Dataset
 
-1. **Model Baseline - CNN**  
-   Model Convolutional Neural Network (CNN) dasar digunakan sebagai baseline untuk membandingkan kinerja dengan model transfer learning yang lebih kompleks. Model ini dirancang untuk mengekstraksi fitur dari gambar bunga menggunakan beberapa lapisan konvolusional yang disertai dengan lapisan pooling untuk mengurangi dimensi fitur dan mempertahankan informasi penting. CNN ini dipilih karena kemampuannya yang baik dalam mengenali pola visual dan karakteristik objek dalam gambar. Model ini memiliki struktur yang lebih sederhana dibandingkan dengan model transfer learning, namun memberikan dasar yang kuat untuk analisis performa model lainnya.
+Dataset mencakup data cuaca harian dari 18 lokasi di Eropa antara tahun 2000 hingga 2010. Variabel utama dalam dataset meliputi:
 
-2. **Model Transfer Learning - MobileNetV2**  
-   Model transfer learning dengan MobileNetV2 digunakan untuk memanfaatkan pengetahuan dan fitur yang sudah dipelajari oleh model pretrained pada dataset yang lebih besar. MobileNetV2 adalah model ringan yang sangat efisien dalam pengenalan gambar, terutama pada perangkat dengan sumber daya terbatas seperti ponsel dan edge devices. Dengan menggunakan MobileNetV2, model ini dapat menghasilkan prediksi yang lebih akurat tanpa memerlukan banyak data pelatihan tambahan. Transfer learning memungkinkan model untuk memanfaatkan pengetahuan yang sudah ada, mengurangi waktu pelatihan dan meningkatkan akurasi secara signifikan dibandingkan model yang hanya dilatih dari awal.
+- **Suhu**: Rata-rata, minimum, dan maksimum suhu harian dalam derajat Celsius.
+- **Kelembapan**: Persentase kelembapan udara.
+- **Kecepatan Angin**: Dalam meter per detik (m/s).
+- **Tekanan Udara**: Dalam 1000 hPa.
+- **Curah Hujan**: Dalam sentimeter (cm).
+- **Durasi Sinar Matahari**: Dalam jam.
 
-### Proses Improvement:
+#### Distribusi Data
 
-- **Model CNN**: Pada model CNN, dilakukan tuning untuk meningkatkan performa dengan mengganti jumlah filter pada lapisan konvolusional dan ukuran kernel. Penyesuaian ini memungkinkan model untuk mengekstraksi fitur lebih efektif dan menangkap lebih banyak detail dari gambar. Selain itu, variasi dalam jumlah lapisan dan struktur jaringan juga dipertimbangkan untuk menemukan konfigurasi terbaik.
-
-- **Model MobileNetV2**: Untuk model MobileNetV2, dilakukan fine-tuning pada beberapa lapisan agar model bisa disesuaikan dengan data spesifik dari dataset bunga. Fine-tuning ini memungkinkan model untuk lebih sensitif terhadap ciri khas dari kelas bunga yang lebih kompleks. Beberapa lapisan terakhir dari model pretrained diperbaharui dengan lapisan baru yang lebih sesuai untuk klasifikasi bunga, yang membantu meningkatkan akurasi model secara keseluruhan.
-
----
-
-## Evaluation
-
-### Metrik Evaluasi:
-
-1. **Akurasi (Accuracy)**  
-   Akurasi merupakan metrik evaluasi yang mengukur proporsi prediksi yang benar terhadap keseluruhan prediksi yang dilakukan oleh model. Akurasi digunakan untuk memberikan gambaran umum tentang performa model dalam mengklasifikasikan data. Metrik ini sangat berguna jika dataset memiliki distribusi kelas yang seimbang. Namun, dalam kasus dataset dengan distribusi kelas yang tidak merata, akurasi saja mungkin tidak cukup untuk menggambarkan performa sebenarnya dari model.
-
-2. **Confusion Matrix**  
-   Confusion matrix adalah alat visualisasi yang digunakan untuk mengevaluasi kinerja model pada masing-masing kelas. Matriks ini menampilkan jumlah prediksi yang benar (diagonal utama) dan jumlah kesalahan (di luar diagonal utama) untuk setiap kelas. Dalam konteks dataset ini, confusion matrix digunakan untuk menganalisis performa model dalam mengenali lima jenis bunga, yaitu Daisy, Dandelion, Roses, Sunflowers, dan Tulips. Dengan memanfaatkan confusion matrix, kita dapat mengidentifikasi pola kesalahan model, seperti kelas mana yang sering salah diklasifikasikan menjadi kelas lain, serta sejauh mana model mampu mengenali ciri khas setiap kelas.
-
-3. **Precision, Recall, F1-Score**  
-   Metrik precision, recall, dan F1-score digunakan untuk mengevaluasi performa model secara lebih mendalam, terutama pada dataset dengan distribusi kelas yang tidak seimbang:
-
-   - **Precision** mengukur sejauh mana prediksi positif model benar-benar relevan, atau dengan kata lain, proporsi prediksi benar pada setiap kelas dibandingkan dengan total prediksi model untuk kelas tersebut. Precision yang tinggi menunjukkan model mampu membuat prediksi dengan tingkat akurasi yang baik untuk masing-masing kelas.
-
-   - **Recall (Sensitivity)** mengukur sejauh mana model mampu menangkap semua data positif sebenarnya untuk setiap kelas. Nilai recall yang tinggi menunjukkan model tidak banyak melewatkan prediksi yang benar.
-
-   - **F1-Score** adalah rata-rata harmonik dari precision dan recall, yang memberikan keseimbangan antara keduanya. F1-score sangat berguna jika diperlukan kompromi antara kemampuan model untuk mengenali semua data positif (recall) dan meminimalkan prediksi salah (precision).
-
-### Hasil Evaluasi:
-
-#### **1. Baseline Model (Custom CNN)**
-
-**Kelebihan:**
-
-- **Simpel dan cepat dilatih**: Model baseline yang dirancang memiliki jumlah lapisan yang terbatas, sehingga proses pelatihannya lebih cepat dibanding model transfer learning.
-- **Performansi wajar**: Dengan akurasi 65.94% dan nilai weighted F1-score 67%, model ini cukup baik untuk baseline pada dataset bunga dengan 5 kelas.
-
-**Kekurangan:**
-
-- **Generalisasi yang terbatas**: Nilai precision dan recall yang cukup rendah pada beberapa kelas, seperti `roses` dan `tulips`, menunjukkan bahwa model baseline kurang mampu mengenali pola yang kompleks.
-- **Kesalahan klasifikasi**: Berdasarkan confusion matrix, terlihat bahwa banyak kesalahan klasifikasi antara kelas `tulips` dan `roses`. Hal ini mungkin karena kedua kelas memiliki fitur visual yang mirip.
-
-#### **2. Transfer Learning Model (MobileNetV2)**
-
-**Kelebihan:**
-
-- **Akurasi yang tinggi**: Model transfer learning mencapai akurasi yang lebih tinggi dibandingkan baseline (misalnya, dapat mencapai **~82-84%** pada data validasi). Hal ini menunjukkan keunggulan menggunakan model yang sudah dilatih sebelumnya.
-- **F1-score yang lebih stabil**: Nilai F1-score yang lebih tinggi dan stabil di semua kelas mengindikasikan kemampuan model untuk mengenali semua kategori bunga dengan baik.
-- **Pemanfaatan fitur tingkat tinggi**: Transfer learning memanfaatkan fitur yang telah dipelajari oleh MobileNetV2 pada dataset besar (ImageNet), sehingga dapat mengenali pola yang lebih kompleks pada dataset bunga.
-
-**Kekurangan:**
-
-- **Memori dan komputasi lebih tinggi**: MobileNetV2 membutuhkan lebih banyak memori GPU dan waktu komputasi untuk pelatihan dan inferensi dibandingkan model baseline.
-- **Ketergantungan pada data awal**: Performansi sangat bergantung pada pretrained weights, sehingga mungkin kurang adaptif terhadap dataset yang sangat berbeda dari ImageNet.
-
-#### **3. Perbandingan Berdasarkan Metrik**
-
-| **Metrik**      | **Baseline Model** | **MobileNetV2** |
-| --------------- | ------------------ | --------------- |
-| Akurasi         | 65.94%             | ~82-84%         |
-| Precision (avg) | 68%                | ~83%            |
-| Recall (avg)    | 67%                | ~82%            |
-| F1-score (avg)  | 67%                | ~82%            |
-
-#### **4. Insight dari Confusion Matrix**
-
-- Pada model baseline:
-  - Kelas `dandelion` memiliki recall tertinggi (**86%**), menunjukkan model cukup baik mengenali pola spesifik `dandelion`.
-  - Kelas `tulips` sering salah diklasifikasikan sebagai `roses` dan `dandelion`, menunjukkan perlunya augmentasi data lebih banyak untuk meningkatkan generalisasi.
-- Pada MobileNetV2:
-  - Tingkat kesalahan antar kelas berkurang signifikan, terutama pada kelas `roses` dan `tulips`.
-  - Recall untuk semua kelas berada pada level yang lebih tinggi, menunjukkan model lebih robust dalam mengenali pola.
-
-#### **5. Rekomendasi Pengembangan**
-
-1. **Augmentasi data**: Tambahkan lebih banyak augmentasi untuk mengurangi kesalahan pada kelas yang sulit dibedakan (misalnya, `tulips` vs. `roses`).
-2. **Fine-tuning MobileNetV2**: Dengan membuka beberapa lapisan pada MobileNetV2, performansi dapat ditingkatkan lebih lanjut.
-3. **Penggunaan teknik ensemble**: Menggabungkan prediksi dari baseline dan MobileNetV2 untuk meningkatkan akurasi keseluruhan.
+Data tersedia dalam bentuk deret waktu dengan total 3654 observasi harian. Beberapa variabel memiliki nilai yang hilang, namun telah diatasi dengan metode imputasi.
 
 ---
 
-**Catatan**: Laporan ini berisi ringkasan tahapan yang dilakukan dalam proyek machine learning untuk klasifikasi gambar bunga. Untuk informasi lebih detail, Anda bisa menambahkan grafik, visualisasi, atau kode tambahan sesuai kebutuhan.
+### Data Preparation
+
+#### Tahapan Data Preparation:
+
+1. **Pembersihan Data**:
+
+   - Menghapus kolom dengan lebih dari 5% nilai hilang.
+   - Mengganti nilai hilang dengan rata-rata pada kolom yang tersisa.
+
+2. **Transformasi Data**:
+
+   - Mengonversi satuan data untuk meningkatkan keseragaman (misalnya, suhu dalam derajat Celsius, curah hujan dalam cm).
+   - Normalisasi data numerik ke rentang [0,1] menggunakan MinMaxScaler.
+
+3. **Pembagian Data**:
+   - Dataset dibagi menjadi 70% data pelatihan dan 30% data pengujian.
+   - Data pelatihan dibagi lagi menjadi data pelatihan dan validasi dengan rasio 80:20.
+
+---
+
+### Modeling
+
+#### Model yang Digunakan
+
+- **Random Forest Regressor**: Algoritma berbasis pohon keputusan yang kuat dalam menangani data non-linear dan interaksi antar fitur.
+- **Gradient Boosting Regressor**: Model boosting yang membangun pohon secara iteratif untuk meminimalkan kesalahan prediksi.
+- **Recurrent Neural Networks (RNN)**: Arsitektur jaringan saraf untuk data berurutan, cocok untuk deret waktu cuaca.
+
+#### Peningkatan Model:
+
+- Hyperparameter tuning menggunakan GridSearchCV.
+- Menambahkan lapisan Dropout pada RNN untuk mengurangi overfitting.
+
+---
+
+### Evaluation
+
+#### Metrik Evaluasi:
+
+- **Mean Absolute Error (MAE)**: Mengukur rata-rata kesalahan absolut antara nilai aktual dan prediksi.
+- **Mean Squared Error (MSE)**: Memberikan penalti lebih besar untuk kesalahan yang besar.
+- **R-squared (R²)**: Mengukur seberapa baik model menjelaskan variasi data target.
+
+#### Hasil Evaluasi:
+
+| Model                           | MAE    | MSE     | R²     |
+| ------------------------------- | ------ | ------- | ------ |
+| **Random Forest Regressor**     | 0.0106 | 0.0002  | 0.9946 |
+| **Gradient Boosting Regressor** | 0.0102 | 0.00018 | 0.9951 |
+| **RNN**                         | 0.0368 | 0.0023  | 0.9381 |
+
+#### Insight:
+
+- **RNN** menunjukkan performa terbaik dengan nilai **R²** 0.9381, karena kemampuannya dalam menangkap pola deret waktu.
+- **Gradient Boosting Regressor** menawarkan keseimbangan antara akurasi dan waktu pelatihan, dengan **R²** yang sedikit lebih tinggi dari **Random Forest**.
+- **Random Forest** memberikan hasil yang sangat baik dengan **R²** 0.9946, tetapi lebih cepat dibandingkan RNN.
+
+---
+
+### Rekomendasi
+
+1. **Peningkatan Data**: Mengumpulkan lebih banyak data historis untuk meningkatkan akurasi model.
+2. **Eksperimen dengan Arsitektur LSTM**: Menerapkan Long Short-Term Memory (LSTM) untuk menangkap pola deret waktu yang lebih kompleks.
+3. **Integrasi Model**: Mengintegrasikan model prediksi cuaca ke dalam aplikasi berbasis web atau mobile untuk memberikan nilai tambah bagi pengguna.
+
+---
