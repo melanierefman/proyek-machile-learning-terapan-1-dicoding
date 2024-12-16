@@ -34,7 +34,10 @@ with ZipFile(file_name,'r') as zip:
   zip.extractall()
   print('Extraction Completed')
 
-"""## **Import Library**"""
+"""## **Import Library**
+
+Pada bagian ini, dilakukan import berbagai library yang akan digunakan dalam proses pengolahan data, eksplorasi, pemodelan, hingga evaluasi model.
+"""
 
 # Import Library
 import numpy as np
@@ -48,23 +51,39 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM, Dropout
 
-"""## **Eksplorasi Awal Dataset**"""
+"""*   NumPy dan Pandas: Untuk manipulasi data dan operasi numerik.
+*   Scikit-learn: Untuk preprocessing data, pemodelan, dan evaluasi model.
+*   TensorFlow dan Keras: Untuk membangun dan melatih model RNN.
+
+## **Eksplorasi Awal Dataset**
+
+Dataset dimuat dari file CSV bernama weather_prediction_dataset.csv menggunakan Pandas.
+"""
 
 # Path dataset
 dataset = "weather_prediction_dataset.csv"
 df = pd.read_csv(dataset)
 
+"""Ditampilkan bentuk dataset (jumlah baris dan kolom)."""
+
 print("Dataset Shape:", data.shape)
+
+"""Diperlihatkan beberapa baris pertama dataset untuk mengetahui gambaran awal data."""
 
 # Tampilkan beberapa baris awal
 print("Preview dataset:")
 print(df.head())
 
+"""Informasi mengenai dataset seperti tipe data dan jumlah nilai yang tersedia."""
+
 # Informasi dataset
 print("\nInformasi dataset:")
 print(df.info())
 
-"""#### **Memeriksa Data yang Hilang**"""
+"""#### **Memeriksa Data yang Hilang**
+
+Pada tahap ini, diperiksa jumlah nilai yang hilang (missing values) di setiap kolom dataset. Hal ini penting untuk mengetahui kualitas data dan menentukan apakah perlu dilakukan penanganan missing values.
+"""
 
 # Cek missing values
 missing_values = df.isnull().sum()
@@ -74,6 +93,8 @@ print(missing_values)
 """## **Data Preparation**
 
 #### **Data Preprocessing dan Augmentasi**
+
+Dilakukan transformasi data menggunakan MinMaxScaler untuk menormalkan data ke dalam rentang 0-1. Ini bertujuan agar algoritma machine learning bekerja lebih optimal.
 """
 
 # Data Transformation
@@ -88,9 +109,18 @@ y = data_scaled['BASEL_temp_mean']
 X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
 X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
-"""## **Modeling**
+"""Kolom target (BASEL_temp_mean) dipisahkan dari dataset, sementara kolom lainnya dijadikan fitur (X).
+
+Dataset kemudian dibagi menjadi tiga bagian:
+* Training set (70%) untuk melatih model.
+* Validation set (15%) untuk mengevaluasi performa selama training.
+* Test set (15%) untuk mengevaluasi performa akhir model pada data yang tidak dilihat sebelumnya.
+
+## **Modeling**
 
 #### **Random Forest Regressor:**
+
+Model Random Forest Regressor digunakan sebagai baseline. Model ini dilatih pada data training dan menghasilkan prediksi pada data test.
 """
 
 # Random Forest Regressor
@@ -98,14 +128,28 @@ rf_model = RandomForestRegressor(random_state=42)
 rf_model.fit(X_train, y_train)
 rf_preds = rf_model.predict(X_test)
 
-"""#### **Gradient Boosting Regressor:**"""
+"""#### **Gradient Boosting Regressor:**
+
+Gradient Boosting Regressor diterapkan sebagai model machine learning berbasis boosting. Model ini juga dilatih pada data training dan dievaluasi dengan data test.
+"""
 
 # Gradient Boosting Regressor
 gb_model = GradientBoostingRegressor(random_state=42)
 gb_model.fit(X_train, y_train)
 gb_preds = gb_model.predict(X_test)
 
-"""#### **Recurrent Neural Network (RNN):**"""
+"""#### **Recurrent Neural Network (RNN):**
+
+Model RNN dibuat menggunakan arsitektur LSTM untuk menangkap pola data sekuensial (time series).
+
+Arsitektur model:
+* LSTM layer dengan 50 unit dan dropout untuk mencegah overfitting.
+* Dense layer untuk memprediksi nilai target.
+
+Preprocessing tambahan: Data fitur (X) diubah menjadi tiga dimensi agar sesuai dengan input LSTM.
+
+Model dilatih menggunakan adam optimizer dengan fungsi loss Mean Squared Error (MSE).
+"""
 
 # RNN
 rnn_model = Sequential([
@@ -126,7 +170,15 @@ X_test_rnn = np.expand_dims(X_test.values, axis=2)
 rnn_model.fit(X_train_rnn, y_train, validation_data=(X_val_rnn, y_val), epochs=50, batch_size=32)
 rnn_preds = rnn_model.predict(X_test_rnn)
 
-"""## **Evaluation**"""
+"""## **Evaluation**
+
+Fungsi evaluasi dibuat untuk menghitung tiga metrik performa utama:
+
+* Mean Absolute Error (MAE): Rata-rata absolut kesalahan prediksi.
+* Mean Squared Error (MSE): Rata-rata kuadrat kesalahan prediksi.
+* R-squared (R²): Kualitas fit model terhadap data sebenarnya.
+Setiap model dievaluasi pada data test untuk membandingkan performanya.
+"""
 
 # Evaluation function
 def evaluate_model(name, y_true, y_pred):
@@ -140,7 +192,10 @@ evaluate_model("Random Forest", y_test, rf_preds)
 evaluate_model("Gradient Boosting", y_test, gb_preds)
 evaluate_model("RNN", y_test, rnn_preds)
 
-"""## **Testing**"""
+"""## **Testing**
+
+Dilakukan pengujian lebih lanjut untuk memastikan bahwa model bekerja dengan baik pada data yang tidak dilihat sebelumnya.
+"""
 
 # Testing phase (testing the models with unseen data)
 print("Testing Random Forest Model:")

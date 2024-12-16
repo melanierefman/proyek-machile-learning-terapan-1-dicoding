@@ -47,18 +47,76 @@ Dataset ini berasal dari proyek ECA&D yang menyediakan data observasi harian dar
 
 #### Deskripsi Dataset
 
-Dataset mencakup data cuaca harian dari 18 lokasi di Eropa antara tahun 2000 hingga 2010. Variabel utama dalam dataset meliputi:
+Dataset ini mencakup data cuaca harian dari 18 lokasi di Eropa selama periode **2000 hingga 2010**. Dataset ini terdiri dari total **3654 baris dan 165 kolom**. Variabel-variabel yang tersedia dalam dataset meliputi:
 
-- **Suhu**: Rata-rata, minimum, dan maksimum suhu harian dalam derajat Celsius.
-- **Kelembapan**: Persentase kelembapan udara.
-- **Kecepatan Angin**: Dalam meter per detik (m/s).
-- **Tekanan Udara**: Dalam 1000 hPa.
-- **Curah Hujan**: Dalam sentimeter (cm).
-- **Durasi Sinar Matahari**: Dalam jam.
+1. **Suhu**:
+
+   - TG: Suhu rata-rata harian dalam derajat Celsius.
+   - TN: Suhu minimum harian dalam derajat Celsius.
+   - TX: Suhu maksimum harian dalam derajat Celsius.
+
+2. **Kelembapan (HU)**:
+
+   - Persentase kelembapan udara dalam fraksi 100%.
+
+3. **Kecepatan Angin**:
+
+   - FG: Kecepatan angin rata-rata harian dalam meter per detik (m/s).
+   - FX: Kecepatan angin maksimum (gust) dalam meter per detik (m/s).
+
+4. **Tekanan Udara (PP)**:
+
+   - Tekanan udara di permukaan laut dalam satuan 1000 hPa.
+
+5. **Curah Hujan (RR)**:
+
+   - Jumlah curah hujan harian dalam sentimeter (cm).
+
+6. **Durasi Sinar Matahari (SS)**:
+
+   - Durasi penyinaran matahari harian dalam jam.
+
+7. **Atribut Lain**:
+   - CC: Tingkat tutupan awan dalam oktas.
+   - DD: Arah angin dalam derajat.
+   - QQ: Radiasi global dalam satuan 100 W/m².
 
 #### Distribusi Data
 
-Data tersedia dalam bentuk deret waktu dengan total 3654 observasi harian. Beberapa variabel memiliki nilai yang hilang, namun telah diatasi dengan metode imputasi.
+Dataset memiliki bentuk deret waktu dengan total **3654 observasi harian** dari berbagai lokasi. Data direpresentasikan dalam kolom-kolom yang mencakup berbagai atribut cuaca seperti suhu, kelembapan, tekanan udara, kecepatan angin, curah hujan, dan lainnya.
+
+#### Kondisi Data
+
+1. **Jumlah Baris dan Kolom**:  
+   Dataset memiliki **3654 baris** (observasi) dan **165 kolom** (atribut).
+
+2. **Nilai yang Hilang (Missing Values)**:  
+   Dilakukan pengecekan terhadap nilai yang hilang di setiap kolom. Berdasarkan hasil eksplorasi, terdapat beberapa atribut yang memiliki nilai kosong (missing values). Nilai hilang ini telah diatasi menggunakan metode **imputasi**, misalnya pengisian dengan nilai rata-rata atau interpolasi deret waktu.
+
+#### Distribusi Data
+
+Dataset ini diambil dari Kaggle pada tautan berikut:  
+[Weather Prediction Dataset - Kaggle](https://www.kaggle.com/datasets/thedevastator/weather-prediction)
+
+#### Uraian Fitur pada Dataset
+
+Berikut adalah uraian singkat seluruh fitur utama yang ada pada dataset:
+
+| **Fitur** | **Deskripsi**                   | **Satuan**      |
+| --------- | ------------------------------- | --------------- |
+| **DATE**  | Tanggal observasi               | -               |
+| **CC**    | Tutupan awan                    | Oktas           |
+| **DD**    | Arah angin                      | Derajat         |
+| **FG**    | Kecepatan angin rata-rata       | Meter/detik     |
+| **FX**    | Kecepatan angin maksimum (gust) | Meter/detik     |
+| **HU**    | Kelembapan udara                | % (fraksi 100)  |
+| **PP**    | Tekanan udara di permukaan laut | 1000 hPa        |
+| **QQ**    | Radiasi global                  | 100 W/m²        |
+| **RR**    | Curah hujan                     | Centimeter      |
+| **SS**    | Durasi penyinaran matahari      | Jam             |
+| **TG**    | Suhu rata-rata                  | Derajat Celsius |
+| **TN**    | Suhu minimum                    | Derajat Celsius |
+| **TX**    | Suhu maksimum                   |
 
 ---
 
@@ -86,9 +144,58 @@ Data tersedia dalam bentuk deret waktu dengan total 3654 observasi harian. Beber
 
 #### Model yang Digunakan
 
-- **Random Forest Regressor**: Algoritma berbasis pohon keputusan yang kuat dalam menangani data non-linear dan interaksi antar fitur.
-- **Gradient Boosting Regressor**: Model boosting yang membangun pohon secara iteratif untuk meminimalkan kesalahan prediksi.
-- **Recurrent Neural Networks (RNN)**: Arsitektur jaringan saraf untuk data berurutan, cocok untuk deret waktu cuaca.
+1. **Random Forest Regressor**:
+   **Deskripsi Model:**
+   Random Forest Regressor adalah algoritma berbasis ensemble yang menggunakan beberapa pohon keputusan untuk menghasilkan prediksi akhir. Model ini bekerja dengan membuat subset acak dari data pelatihan dan memilih subset fitur secara acak pada setiap split dalam pohon, yang membantu meningkatkan akurasi dan mengurangi overfitting.
+
+**Parameter yang Digunakan:**
+
+- `random_state=42`: Parameter ini digunakan untuk memastikan replikasi hasil eksperimen dengan mengontrol proses pengacakan dalam algoritma.
+
+2. **Gradient Boosting Regressor**:
+   **Deskripsi Model:**
+   Gradient Boosting Regressor adalah algoritma boosting yang membangun model secara iteratif, di mana setiap model baru mencoba untuk mengurangi kesalahan dari model sebelumnya. Proses ini dilakukan dengan mengoptimalkan fungsi loss menggunakan gradient descent.
+
+**Parameter yang Digunakan:**
+
+- `random_state=42`: Digunakan untuk mengontrol pengacakan dan memastikan hasil yang dapat direplikasi.
+
+**Deskripsi Model:**
+RNN adalah arsitektur jaringan saraf yang dirancang untuk menangani data berurutan seperti deret waktu. Model ini mampu mempertahankan informasi dari data sebelumnya melalui koneksi rekursif. Dalam proyek ini, Long Short-Term Memory (LSTM), varian dari RNN, digunakan untuk menangani masalah vanishing gradient.
+
+3. **Recurrent Neural Network (RNN)**:
+   **Parameter dan Arsitektur:**
+
+- **Layer LSTM pertama:**
+  - `units=50`: Jumlah neuron di dalam layer.
+  - `activation='relu'`: Fungsi aktivasi untuk menangkap hubungan non-linear dalam data.
+  - `return_sequences=True`: Mengizinkan pengembalian urutan lengkap, yang diperlukan untuk layer LSTM berikutnya.
+- **Dropout:**
+  - `rate=0.2`: Mengurangi overfitting dengan menonaktifkan 20% neuron selama pelatihan.
+- **Layer LSTM kedua:**
+  - `units=50` dan `activation='relu'`: Sama seperti layer pertama.
+- **Output Dense layer:**
+  - `units=1`: Menghasilkan satu output untuk prediksi target.
+
+**Optimasi:**
+
+- **Optimizer:** `adam`, algoritma berbasis gradient descent yang menggabungkan momentum dan adaptasi learning rate.
+- **Fungsi loss:** `mse` (Mean Squared Error), cocok untuk masalah regresi.
+- **Epochs:** 50 iterasi pelatihan.
+- **Batch size:** 32, menentukan jumlah sampel dalam setiap update parameter.
+
+## **Peningkatan Model**
+
+1. **Hyperparameter Tuning:**
+
+   - Hyperparameter tuning dilakukan menggunakan `GridSearchCV` untuk model Random Forest dan Gradient Boosting guna mencari kombinasi parameter optimal seperti jumlah pohon (`n_estimators`), depth maksimum pohon (`max_depth`), dan learning rate (untuk Gradient Boosting).
+
+2. **Regularisasi pada RNN:**
+
+   - Dropout layer digunakan untuk mengurangi overfitting dengan mengabaikan sebagian neuron selama proses pelatihan.
+
+3. **Validasi:**
+   - Data validasi digunakan untuk memonitor kinerja model selama pelatihan dan mencegah overfitting pada data pelatihan.
 
 #### Peningkatan Model:
 
