@@ -45,45 +45,38 @@ Dataset ini berasal dari proyek ECA&D yang menyediakan data observasi harian dar
 
 ### Data Understanding
 
+Dataset ini diambil dari Kaggle, dengan tautan berikut: [Weather Prediction Dataset](https://www.kaggle.com/datasets/thedevastator/weather-prediction). Berikut adalah penjelasan rinci tentang dataset ini.
+
 #### Deskripsi Dataset
 
 Dataset ini mencakup data cuaca harian dari 18 lokasi di Eropa selama periode **2000 hingga 2010**. Dataset ini terdiri dari total **3654 baris dan 165 kolom**. Variabel-variabel yang tersedia dalam dataset meliputi:
 
-1. **Suhu**:
+1. **Lokasi Observasi:**
 
-   - TG: Suhu rata-rata harian dalam derajat Celsius.
-   - TN: Suhu minimum harian dalam derajat Celsius.
-   - TX: Suhu maksimum harian dalam derajat Celsius.
+   - Data dikumpulkan dari 18 kota atau tempat di Eropa, termasuk:
+     - **Swiss:** Basel
+     - **Jerman:** Dresden, Düsseldorf, Kassel, München
+     - **Belanda:** De Bilt, Maastricht
+     - **Inggris:** Heathrow
+     - **Prancis:** Montélimar, Perpignan, Tours
+     - **Hungaria:** Budapest
+     - **Italia:** Roma
+     - **Swedia:** Malmo, Stockholm
+     - **Norwegia:** Oslo
+     - **Slovenia:** Ljubljana
+     - **Austria:** Sonnblick
 
-2. **Kelembapan (HU)**:
+2. **Periode Observasi:**
 
-   - Persentase kelembapan udara dalam fraksi 100%.
+   - Rentang waktu: 2000–2010.
+   - Kolom `DATE` menunjukkan tanggal dalam format `YYYYMMDD`.
 
-3. **Kecepatan Angin**:
-
-   - FG: Kecepatan angin rata-rata harian dalam meter per detik (m/s).
-   - FX: Kecepatan angin maksimum (gust) dalam meter per detik (m/s).
-
-4. **Tekanan Udara (PP)**:
-
-   - Tekanan udara di permukaan laut dalam satuan 1000 hPa.
-
-5. **Curah Hujan (RR)**:
-
-   - Jumlah curah hujan harian dalam sentimeter (cm).
-
-6. **Durasi Sinar Matahari (SS)**:
-
-   - Durasi penyinaran matahari harian dalam jam.
-
-7. **Atribut Lain**:
-   - CC: Tingkat tutupan awan dalam oktas.
-   - DD: Arah angin dalam derajat.
-   - QQ: Radiasi global dalam satuan 100 W/m².
+3. **Pengukuran Variabel:**
+   Dataset mencakup parameter cuaca seperti suhu, kelembapan, tekanan udara, kecepatan angin, curah hujan, dan durasi sinar matahari. Data disediakan untuk setiap lokasi dengan nama kolom yang diawali nama lokasi.
 
 #### Distribusi Data
 
-Dataset memiliki bentuk deret waktu dengan total **3654 observasi harian** dari berbagai lokasi. Data direpresentasikan dalam kolom-kolom yang mencakup berbagai atribut cuaca seperti suhu, kelembapan, tekanan udara, kecepatan angin, curah hujan, dan lainnya.
+Dataset Weather Prediction dari Kaggle adalah kumpulan data meteorologi harian yang diambil dari **18 lokasi di Eropa** antara tahun 2000 hingga 2010.
 
 #### Kondisi Data
 
@@ -93,30 +86,76 @@ Dataset memiliki bentuk deret waktu dengan total **3654 observasi harian** dari 
 2. **Nilai yang Hilang (Missing Values)**:  
    Dilakukan pengecekan terhadap nilai yang hilang di setiap kolom. Berdasarkan hasil eksplorasi, terdapat beberapa atribut yang memiliki nilai kosong (missing values). Nilai hilang ini telah diatasi menggunakan metode **imputasi**, misalnya pengisian dengan nilai rata-rata atau interpolasi deret waktu.
 
-#### Distribusi Data
-
-Dataset ini diambil dari Kaggle pada tautan berikut:  
-[Weather Prediction Dataset - Kaggle](https://www.kaggle.com/datasets/thedevastator/weather-prediction)
-
 #### Uraian Fitur pada Dataset
 
-Berikut adalah uraian singkat seluruh fitur utama yang ada pada dataset:
+##### **Variabel Utama (per Lokasi)**
 
-| **Fitur** | **Deskripsi**                   | **Satuan**      |
-| --------- | ------------------------------- | --------------- |
-| **DATE**  | Tanggal observasi               | -               |
-| **CC**    | Tutupan awan                    | Oktas           |
-| **DD**    | Arah angin                      | Derajat         |
-| **FG**    | Kecepatan angin rata-rata       | Meter/detik     |
-| **FX**    | Kecepatan angin maksimum (gust) | Meter/detik     |
-| **HU**    | Kelembapan udara                | % (fraksi 100)  |
-| **PP**    | Tekanan udara di permukaan laut | 1000 hPa        |
-| **QQ**    | Radiasi global                  | 100 W/m²        |
-| **RR**    | Curah hujan                     | Centimeter      |
-| **SS**    | Durasi penyinaran matahari      | Jam             |
-| **TG**    | Suhu rata-rata                  | Derajat Celsius |
-| **TN**    | Suhu minimum                    | Derajat Celsius |
-| **TX**    | Suhu maksimum                   |
+Setiap lokasi memiliki pengamatan untuk variabel berikut:
+
+1. **Cloud Cover (CC):**
+   - Deskripsi: Tutupan awan.
+   - Satuan: Oktas (0–8).
+2. **Humidity (HU):**
+
+   - Deskripsi: Kelembapan udara.
+   - Satuan: Persentase (dalam fraksi 100%).
+
+3. **Pressure (PP):**
+
+   - Deskripsi: Tekanan udara di permukaan laut.
+   - Satuan: hPa (dalam 1000 hPa).
+
+4. **Global Radiation (QQ):**
+
+   - Deskripsi: Radiasi global.
+   - Satuan: 100 W/m².
+
+5. **Precipitation (RR):**
+
+   - Deskripsi: Curah hujan harian.
+   - Satuan: Centimeter (cm).
+
+6. **Sunshine (SS):**
+
+   - Deskripsi: Durasi sinar matahari harian.
+   - Satuan: Jam.
+
+7. **Wind Speed (FG):**
+
+   - Deskripsi: Kecepatan angin rata-rata.
+   - Satuan: Meter per detik (m/s).
+
+8. **Wind Gust (FX):**
+
+   - Deskripsi: Kecepatan hembusan angin maksimum.
+   - Satuan: Meter per detik (m/s).
+
+9. **Mean Temperature (TG):**
+
+   - Deskripsi: Suhu rata-rata harian.
+   - Satuan: Derajat Celsius (°C).
+
+10. **Minimum Temperature (TN):**
+
+    - Deskripsi: Suhu minimum harian.
+    - Satuan: Derajat Celsius (°C).
+
+11. **Maximum Temperature (TX):**
+    - Deskripsi: Suhu maksimum harian.
+    - Satuan: Derajat Celsius (°C).
+
+##### **Contoh Nama Kolom:**
+
+Kolom untuk setiap variabel diidentifikasi berdasarkan lokasi. Contoh:
+
+- **BASEL_humidity:** Kelembapan udara di Basel.
+- **TOURS_temp_mean:** Suhu rata-rata di Tours.
+- **STOCKHOLM_pressure:** Tekanan udara di Stockholm.
+
+##### **Kolom Khusus Tanggal dan Bulan:**
+
+- **DATE:** Format `YYYYMMDD` untuk tanggal pengamatan.
+- **MONTH:** Angka bulan (1–12).
 
 ---
 
@@ -135,8 +174,10 @@ Berikut adalah uraian singkat seluruh fitur utama yang ada pada dataset:
    - Normalisasi data numerik ke rentang [0,1] menggunakan MinMaxScaler.
 
 3. **Pembagian Data**:
-   - Dataset dibagi menjadi 70% data pelatihan dan 30% data pengujian.
-   - Data pelatihan dibagi lagi menjadi data pelatihan dan validasi dengan rasio 80:20.
+   Dataset kemudian dibagi menjadi tiga bagian:
+   - Training set (70%) untuk melatih model.
+   - Validation set (15%) untuk mengevaluasi performa selama training.
+   - Test set (15%) untuk mengevaluasi performa akhir model pada data yang tidak dilihat sebelumnya.
 
 ---
 
@@ -183,26 +224,6 @@ RNN adalah arsitektur jaringan saraf yang dirancang untuk menangani data berurut
 - **Fungsi loss:** `mse` (Mean Squared Error), cocok untuk masalah regresi.
 - **Epochs:** 50 iterasi pelatihan.
 - **Batch size:** 32, menentukan jumlah sampel dalam setiap update parameter.
-
-## **Peningkatan Model**
-
-1. **Hyperparameter Tuning:**
-
-   - Hyperparameter tuning dilakukan menggunakan `GridSearchCV` untuk model Random Forest dan Gradient Boosting guna mencari kombinasi parameter optimal seperti jumlah pohon (`n_estimators`), depth maksimum pohon (`max_depth`), dan learning rate (untuk Gradient Boosting).
-
-2. **Regularisasi pada RNN:**
-
-   - Dropout layer digunakan untuk mengurangi overfitting dengan mengabaikan sebagian neuron selama proses pelatihan.
-
-3. **Validasi:**
-   - Data validasi digunakan untuk memonitor kinerja model selama pelatihan dan mencegah overfitting pada data pelatihan.
-
-#### Peningkatan Model:
-
-- Hyperparameter tuning menggunakan GridSearchCV.
-- Menambahkan lapisan Dropout pada RNN untuk mengurangi overfitting.
-
----
 
 ### Evaluation
 
